@@ -17,6 +17,9 @@ lab_k = 903.3
 # Most of these taken directly from Wikipedia
 conv = 
   from_CIEXYZ:
+    to_hex: (tuple...) ->
+      rgb = conv.from_CIEXYZ.to_sRGB tuple...
+      conv.from_sRGB.to_hex rgb...
     to_sRGB: (tuple...) ->
       m = [
         [3.2406, -1.5372, -0.4986]
@@ -73,6 +76,13 @@ conv =
       _Y = dot_product m[1], rgbl
       _Z = dot_product m[2], rgbl
       [_X, _Y, _Z]
+    to_hex: (tuple...) ->
+      hex = "#"
+      for ch in tuple
+        ch = Math.round(ch * 255).toString(16)
+        ch = "0" + ch if ch.length is 1
+        hex += ch
+      hex
   from_CIExyY:
     to_CIEXYZ: (_x, _y, _Y) ->
       if _y is 0
@@ -109,14 +119,28 @@ conv =
     to_CIEXYZ: (tuple...) ->
       lab = conv.from_CIELCH.to_CIELAB tuple...
       conv.from_CIELAB.to_CIEXYZ lab...
+  from_hex:
+    to_sRGB: (hex) ->
+      if hex.charAt(0) is "#"
+        hex = hex.substring 1, 7
+      r = hex.substring 0, 2
+      g = hex.substring 2, 4
+      b = hex.substring 4, 6
+      [r, g, b].map (n) ->
+        parseInt(n, 16) / 255
+    to_CIEXYZ: (hex) ->
+      rgb = conv.from_hex.to_sRGB hex
+      conv.from_sRGB.to_CIEXYZ rgb...
 
 # Export to node.js if exports object exists
 root = exports ? {}
 
-root.get_color = (space, tuple) ->
-    color = conv["from_" + space].to_CIEXYZ(tuple...)
-    as: (space) ->
-      conv.from_CIEXYZ["to_" + space](color...)
+root.make_color = (space, tuple) ->
+  if space is 'hex'
+    tuple = [tuple]
+  color = conv["from_" + space].to_CIEXYZ(tuple...)
+  as: (space) ->
+    conv.from_CIEXYZ["to_" + space](color...)
 
 # Export to jQuery if jQuery object exists
 if jQuery?

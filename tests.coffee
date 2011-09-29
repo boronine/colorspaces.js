@@ -1,21 +1,23 @@
 assert = require 'assert'
 colorspaces = require './colorspaces.js'
 
-# http://www.brucelindbloom.com/index.html?ColorCalculator.html
 colors =
-  indigo: # 75, 0, 130
+  indigo:
+    'hex': '#4b0082'
     'sRGB': [0.29412, 0.00000, 0.50980]
     'CIEXYZ': [0.06931, 0.03108, 0.21354]
     'CIExyY': [0.22079, 0.09899, 0.03108]
     'CIELAB': [20.470, 51.695, -53.320]
     'CIELCH': [20.470, 74.265, 314.113]
-  crimson: # 220, 20, 60
+  crimson:
+    'hex': '#dc143c'
     'sRGB': [0.86275, 0.07843, 0.23529]
     'CIEXYZ': [0.30581, 0.16042, 0.05760]
     'CIExyY': [0.58380, 0.30625, 0.16042]
     'CIELAB': [47.030, 70.936, 33.595]
     'CIELCH': [47.030, 78.489, 25.342]
-  white: # 255, 255, 255
+  white:
+    'hex': '#ffffff'
     'sRGB': [1, 1, 1]
     'CIEXYZ': [0.95050, 1.00000, 1.08900]
     'CIExyY': [0.31272, 0.32900, 1]
@@ -24,7 +26,8 @@ colors =
     # irrelevant for white and its big rounding error
     # is acceptable here. Hue is better tested with 
     # more saturated colors, like the two above
-  black: # 0, 0, 0
+  black:
+    'hex': '#000000'
     'sRGB': [0, 0, 0]
     'CIEXYZ': [0, 0, 0]
     'CIExyY': [0, 0, 0]
@@ -49,22 +52,29 @@ big_dif = (tuple1, tuple2) ->
 
 # For every test color
 for name, definitions of colors
-    console.log "Testing " + name
-    # Make a color object for every definition of the test color
-    for space1, tuple1 of definitions
-      color = colorspaces.get_color(space1, tuple1)
-      # Convert each of those to every color space and compare
-      for space2, tuple2 of definitions
-        output = color.as(space2)
-        for val in output
-          assert.ok not isNaN(val), "\n
-            NaN returned when converting from #{space1} to #{space2}\n
-            #{output}\n"
-        dif = big_dif tuple2, output
-        # If the biggest difference is too big, complain
-        assert.ok dif <= permissible_error[space2], "\n
-          Big error when converting from #{space1} to #{space2}\n
-          Input: #{tuple1}\n
-          Output: #{output}\n
-          Should be: #{tuple2}\n"
+  console.log "Testing " + name
+  # Make a color object for every definition of the test color
+  for space1, tuple1 of definitions
+    color = colorspaces.make_color(space1, tuple1)
+    # Convert each of those to every color space and compare
+    for space2, tuple2 of definitions
+      output = color.as(space2)
+      # If the target space is hex, simply compare the two for equality
+      if space2 is 'hex'
+        assert.ok output is tuple2, "\n
+          Error when converting #{space1} to hex\n"
+        continue
+      # Otherwise first make sure there are no NaNs
+      for val in output
+        assert.ok not isNaN(val), "\n
+          NaN returned when converting from #{space1} to #{space2}\n
+          #{output}\n"
+      # Then calculate the biggest difference
+      dif = big_dif tuple2, output
+      # ... and see if it's too big
+      assert.ok dif <= permissible_error[space2], "\n
+        Big error when converting from #{space1} to #{space2}\n
+        Input: #{tuple1}\n
+        Output: #{output}\n
+        Should be: #{tuple2}\n"
 
