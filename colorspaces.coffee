@@ -152,13 +152,3 @@ root.make_color = (space, tuple) ->
 if jQuery?
   jQuery.colorspaces = root 
 
-color = root.make_color 'CIELCH', [50, 80, 0]
-console.log color.as('sRGB')
-
-'''
-for i in [0..11]
-  h = i * 30
-  color = root.make_color 'CIELCH', [47.030, 78.489, h]
-  console.log color.as('hex')
-'''
-

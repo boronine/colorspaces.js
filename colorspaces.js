@@ -1,5 +1,5 @@
 (function() {
-  var clip, color, conv, dot_product, lab_e, lab_k, root, white_point;
+  var clip, conv, dot_product, lab_e, lab_k, root, white_point;
   var __slice = Array.prototype.slice;
   dot_product = function(a, b) {
     var i, ret, _ref;
@@ -210,7 +210,4 @@
   if (typeof jQuery !== "undefined" && jQuery !== null) {
     jQuery.colorspaces = root;
   }
-  color = root.make_color('CIELCH', [50, 80, 0]);
-  console.log(color.as('sRGB'));
-  'for i in [0..11]\n  h = i * 30\n  color = root.make_color \'CIELCH\', [47.030, 78.489, h]\n  console.log color.as(\'hex\')';
 }).call(this);
