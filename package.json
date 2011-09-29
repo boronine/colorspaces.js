@@ -1,0 +1,14 @@
+{
+  "name": "colorspaces",
+  "description": "A tiny library for manipulating colors",
+  "keywords": ["color", "color space", "CIE", "RGB"],
+  "version": "0.0.1",
+  "author": "Alexei Boronine <alexei.boronine@gmail.com>",
+  "main": "colorspaces.js",
+  "files": ["colorspaces.js"],
+  "repository": {
+    "type" : "git",
+    "url" : "http://github.com/boronine/colorspaces.js.git"
+  },
+  "homepage": "http://boronine.github.com/colorspaces.js/"
+}
