@@ -13,6 +13,12 @@ white_point = [0.95047, 1.00000, 1.08883]
 lab_e = 0.008856
 lab_k = 903.3
 
+# Clip to fit the 0..1 range
+clip = (i) ->
+  i = 0 if i < 0
+  i = 1 if i > 1
+  return i
+
 # Functions for converting between CIE XYZ and other color spaces
 # Most of these taken directly from Wikipedia
 conv = 
@@ -32,9 +38,9 @@ conv =
           12.92 * c
         else
           1.055 * Math.pow(c, 1 / 2.4) - 0.055
-      _R = from_linear dot_product m[0], tuple
-      _G = from_linear dot_product m[1], tuple
-      _B = from_linear dot_product m[2], tuple
+      _R = clip from_linear dot_product m[0], tuple
+      _G = clip from_linear dot_product m[1], tuple
+      _B = clip from_linear dot_product m[2], tuple
       [_R, _G, _B]
     to_CIExyY: (_X, _Y, _Z) ->
       sum = _X + _Y + _Z
@@ -145,4 +151,14 @@ root.make_color = (space, tuple) ->
 # Export to jQuery if jQuery object exists
 if jQuery?
   jQuery.colorspaces = root 
+
+color = root.make_color 'CIELCH', [50, 80, 0]
+console.log color.as('sRGB')
+
+'''
+for i in [0..11]
+  h = i * 30
+  color = root.make_color 'CIELCH', [47.030, 78.489, h]
+  console.log color.as('hex')
+'''
 
