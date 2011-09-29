@@ -5,7 +5,7 @@ $(document).ready(function() {
 	}
 	for (var h = 0; h < 360; h += 30) {
 		var square = $('<div class="square">a</div>').appendTo($('#lch_demo'));
-		var color = $.colorspaces.make_color('CIELCH', [65, 100, h]);
+		var color = $.colorspaces.make_color('CIELCH', [75, 100, h]);
 		square.css('background-color', color.as('hex'));
 	}
 });

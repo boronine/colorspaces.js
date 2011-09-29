@@ -4,6 +4,7 @@
   <title>colorspaces.js</title>
   <meta name="description" content="colorspaces.js - a tiny jQuery library for manipulating colors">
   <meta name="author" content="Alexei Boronine">
+  <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono|Droid+Serif' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -12,7 +13,7 @@
 <div id="content">
 <header>
 <h1>colorspaces.js</h1>
-<p>A tiny jQuery library for manipulating colors</p>
+<p>A tiny jQuery library for manipulating colors.</p>
 </header>
 <pre>
 var crimson = $.colorspaces.make_color('hex', '#dc143c');
@@ -30,13 +31,17 @@ for (var h = 0; h < 360; h += 30) {
 <pre>
 for (var h = 0; h < 360; h += 30) {
   var square = $('&lt;div class="square"&gt;a&lt;/div&gt;').appendTo($('#lch_demo'));
-  var color = $.colorspaces.make_color('CIELCH', [65, 90, h]);
+  var color = $.colorspaces.make_color('CIELCH', [75, 100, h]);
   square.css('background-color', color.as('hex'));
 }
 </pre>
 <div id="lch_demo" class="demo"></div>
-<p>Currently, colorspaces.js supports sRGB, CIE XYZ, CIE xyY, CIE L*a*b* and CIE LCh color spaces. <code>colorspaces.make_color</code> takes two arguments: the name of the color space (<code>'sRGB'</code>, <code>'CIEXYZ'</code>, <code>'CIExyY'</code>, <code>'CIELAB'</code>, <code>'CIELCH'</code>) and the tuple of values. The returned object has one method, <code>as</code>, that takes the name of a color space as its only argument and returns the coordinates of the color in that color space as an array.</p>
+<p>Currently, colorspaces.js supports sRGB, CIE XYZ, CIE xyY, CIE L*a*b* and CIE LCh color spaces.</p>
+<p><code>colorspaces.make_color</code> takes two arguments: the name of the color space (<code>'sRGB'</code>, <code>'CIEXYZ'</code>, <code>'CIExyY'</code>, <code>'CIELAB'</code>, <code>'CIELCH'</code>) and an array of values representing the color in the color space. The returned object has one method, <code>as</code>, that takes the name of a color space as its only argument and returns the coordinates of the color in that color space as an array.</p>
 <p>You can use <code>'hex'</code> in place of a color space name to parse or output a hex RGB representation of a color.</p>
+<footer>
+&copy; Copyright 2011 by Alexei Boronine
+</footer>
 </div>
   <script src="js/jquery.min.js"></script>
   <script src="js/colorspaces.min.js"></script>
