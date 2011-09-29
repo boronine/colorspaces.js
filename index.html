@@ -19,7 +19,7 @@
 var crimson = $.colorspaces.make_color('hex', '#dc143c');
 var LCH = crimson.as('CIELCH');
 </pre>
-<p>RGB, the color space we are forced to use here on the web is based on display technology, not human color perception. For example, the "lightness" parameter in the HSL representation of RGB is rather bad at describing lightness:</p>
+<p>RGB, the color space we are forced to use here on the web is based on display technology, not human color perception. For example, the "lightness" parameter in the HSL representation of RGB is rather bad at describing lightness as perceived by humans:</p>
 <pre>
 for (var h = 0; h < 360; h += 30) {
   var square = $('&lt;div class="square"&gt;a&lt;/div&gt;').appendTo($('#hsl_demo'));
@@ -27,7 +27,7 @@ for (var h = 0; h < 360; h += 30) {
 }
 </pre>
 <div id="hsl_demo" class="demo"></div>
-<p>Notice how the red and the blue square are very noticeably darker than, say, the yellow even though all of them have the same lightness. Compare this to the results given by a similar color space, CIE LCH:</p>
+<p>Notice how the red and the blue square are much darker than the yellow even though all of them have the same 50% lightness. Compare this to the results given by a similar color space, CIE LCH:</p>
 <pre>
 for (var h = 0; h < 360; h += 30) {
   var square = $('&lt;div class="square"&gt;a&lt;/div&gt;').appendTo($('#lch_demo'));
@@ -36,6 +36,7 @@ for (var h = 0; h < 360; h += 30) {
 }
 </pre>
 <div id="lch_demo" class="demo"></div>
+<p>Much more useful!</p>
 <p>Currently, colorspaces.js supports sRGB, CIE XYZ, CIE xyY, CIE L*a*b* and CIE LCh color spaces.</p>
 <p><code>colorspaces.make_color</code> takes two arguments: the name of the color space (<code>'sRGB'</code>, <code>'CIEXYZ'</code>, <code>'CIExyY'</code>, <code>'CIELAB'</code>, <code>'CIELCH'</code>) and an array of values representing the color in the color space. The returned object has one method, <code>as</code>, that takes the name of a color space as its only argument and returns the coordinates of the color in that color space as an array.</p>
 <p>You can use <code>'hex'</code> in place of a color space name to parse or output a hex RGB representation of a color.</p>
