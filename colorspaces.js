@@ -1,5 +1,5 @@
 (function() {
-  var clip, conv, dot_product, lab_e, lab_k, root, white_point;
+  var clip, conv, dot_product, lab_e, lab_k, root, validate, white_point;
   var __slice = Array.prototype.slice;
   dot_product = function(a, b) {
     var i, ret, _ref;
@@ -42,9 +42,9 @@
             return 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
           }
         };
-        _R = clip(from_linear(dot_product(m[0], tuple)));
-        _G = clip(from_linear(dot_product(m[1], tuple)));
-        _B = clip(from_linear(dot_product(m[2], tuple)));
+        _R = from_linear(dot_product(m[0], tuple));
+        _G = from_linear(dot_product(m[1], tuple));
+        _B = from_linear(dot_product(m[2], tuple));
         return [_R, _G, _B];
       },
       to_CIExyY: function(_X, _Y, _Z) {
@@ -193,17 +193,40 @@
       }
     }
   };
+  validate = function(space, tuple) {
+    var primary, _i, _len;
+    if (space === 'sRGB') {
+      if (tuple.length !== 3) {
+        return false;
+      }
+      for (_i = 0, _len = tuple.length; _i < _len; _i++) {
+        primary = tuple[_i];
+        if (primary < 0 || primary > 1) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return true;
+  };
   root = typeof exports !== "undefined" && exports !== null ? exports : {};
   root.make_color = function(space, tuple) {
     var color, _ref;
     if (space === 'hex') {
       tuple = [tuple];
     }
+    if (!validate(tuple, space)) {
+      throw "Color is out of the gamut of the given color space";
+    }
     color = (_ref = conv["from_" + space]).to_CIEXYZ.apply(_ref, tuple);
     return {
       as: function(space) {
-        var _ref2;
-        return (_ref2 = conv.from_CIEXYZ)["to_" + space].apply(_ref2, color);
+        var val, _ref2;
+        val = (_ref2 = conv.from_CIEXYZ)["to_" + space].apply(_ref2, color);
+        if (!validate(val, space)) {
+          throw "Color is out of the gamut of the requested color space";
+        }
+        return val;
       }
     };
   };

@@ -13,15 +13,9 @@ white_point = [0.95047, 1.00000, 1.08883]
 lab_e = 0.008856
 lab_k = 903.3
 
-# Clip to fit the 0..1 range
-clip = (i) ->
-  i = 0 if i < 0
-  i = 1 if i > 1
-  return i
-
 # Functions for converting between CIE XYZ and other color spaces
 # Most of these taken directly from Wikipedia
-conv = 
+conv =
   from_CIEXYZ:
     to_hex: (tuple...) ->
       rgb = conv.from_CIEXYZ.to_sRGB tuple...
@@ -38,10 +32,10 @@ conv =
           12.92 * c
         else
           1.055 * Math.pow(c, 1 / 2.4) - 0.055
-      _R = clip from_linear dot_product m[0], tuple
-      _G = clip from_linear dot_product m[1], tuple
-      _B = clip from_linear dot_product m[2], tuple
-      [_R, _G, _B]
+      _R = from_linear dot_product m[0], tuple
+      _G = from_linear dot_product m[1], tuple
+      _B = from_linear dot_product m[2], tuple
+      return [_R, _G, _B]
     to_CIExyY: (_X, _Y, _Z) ->
       sum = _X + _Y + _Z
       if sum is 0
@@ -62,7 +56,7 @@ conv =
       [_L, _a, _b]
     to_CIELCH: (tuple...) ->
       lab = conv.from_CIEXYZ.to_CIELAB tuple...
-      conv.from_CIELAB.to_CIELCH lab... 
+      conv.from_CIELAB.to_CIELCH lab...
     to_CIEXYZ: (tuple...) -> tuple
   from_sRGB:
     to_CIEXYZ: (_R, _G, _B) ->
@@ -138,17 +132,33 @@ conv =
       rgb = conv.from_hex.to_sRGB hex
       conv.from_sRGB.to_CIEXYZ rgb...
 
+# Returns whether given color coordinates fit within their valid range
+validate = (space, tuple) ->
+  if space is 'sRGB'
+    if tuple.length isnt 3
+      return false
+    for primary in tuple
+      if primary < 0 or primary > 1
+        return false
+    return true
+  return true
+
 # Export to node.js if exports object exists
 root = exports ? {}
 
 root.make_color = (space, tuple) ->
   if space is 'hex'
     tuple = [tuple]
+  if not validate(tuple, space)
+    throw "Color is out of the gamut of the given color space"
   color = conv["from_" + space].to_CIEXYZ(tuple...)
   as: (space) ->
-    conv.from_CIEXYZ["to_" + space](color...)
+    val = conv.from_CIEXYZ["to_" + space](color...)
+    if not validate(val, space)
+      throw "Color is out of the gamut of the requested color space"
+    return val
 
 # Export to jQuery if jQuery object exists
 if jQuery?
-  jQuery.colorspaces = root 
+  jQuery.colorspaces = root
 
