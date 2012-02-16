@@ -9,6 +9,7 @@ colors =
     'CIExyY': [0.22079, 0.09899, 0.03108]
     'CIELAB': [20.470, 51.695, -53.320]
     'CIELCH': [20.470, 74.265, 314.113]
+    'CIELUV': [20.470, 10.084, -61.343]
   crimson:
     'hex': '#dc143c'
     'sRGB': [0.86275, 0.07843, 0.23529]
@@ -16,12 +17,14 @@ colors =
     'CIExyY': [0.58380, 0.30625, 0.16042]
     'CIELAB': [47.030, 70.936, 33.595]
     'CIELCH': [47.030, 78.489, 25.342]
+    'CIELUV': [47.030, 138.278, 19.641]
   white:
     'hex': '#ffffff'
     'sRGB': [1, 1, 1]
     'CIEXYZ': [0.95050, 1.00000, 1.08900]
     'CIExyY': [0.31272, 0.32900, 1]
     'CIELAB': [100, 0.005, -0.010]
+    'CIELUV': [100, 0.001, -0.017]
     # CIELCH omitted because Hue is almost completely
     # irrelevant for white and its big rounding error
     # is acceptable here. Hue is better tested with 
@@ -32,6 +35,7 @@ colors =
     'CIEXYZ': [0, 0, 0]
     'CIExyY': [0, 0, 0]
     'CIELAB': [0, 0, 0]
+    'CIELUV': [0, 0, 0]
     # CIELCH omitted
 
 permissible_error =
@@ -39,6 +43,7 @@ permissible_error =
   'CIEXYZ': 0.001
   'CIExyY': 0.001
   'CIELCH': 0.01
+  'CIELUV': 0.01
   'sRGB': 0.001
 
 # Returns the biggest difference factor between two corresponding

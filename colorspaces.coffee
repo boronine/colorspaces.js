@@ -7,11 +7,27 @@ dot_product = (a, b) ->
   return ret
 
 # The D65 standard illuminant
-white_point = [0.95047, 1.00000, 1.08883]
+ref_X = 0.95047
+ref_Y = 1.00000
+ref_Z = 1.08883
+ref_U = (4 * ref_X) / (ref_X + (15 * ref_Y) + (3 * ref_Z))
+ref_V = (9 * ref_Y) / (ref_X + (15 * ref_Y) + (3 * ref_Z))
 
 # CIE L*a*b* constants
 lab_e = 0.008856
 lab_k = 903.3
+
+# Used for Lab and LUV conversions
+f = (t) ->
+  if t > lab_e
+    Math.pow(t, 1 / 3)
+  else
+    7.787 * t + 16 / 116
+f_inv = (t) ->
+  if Math.pow(t, 3) > lab_e
+    Math.pow(t, 3)
+  else
+    (116 * t - 16) / lab_k
 
 # Functions for converting between CIE XYZ and other color spaces
 # Most of these taken directly from Wikipedia
@@ -42,18 +58,23 @@ conv =
         return [0, 0, _Y]
       [_X / sum, _Y / sum, _Y]
     to_CIELAB: (_X, _Y, _Z) ->
-      f = (t) ->
-        if t > lab_e
-          Math.pow(t, 1 / 3)
-        else
-          7.787 * t + 16 / 116
-      fx = f _X / white_point[0]
-      fy = f _Y / white_point[1]
-      fz = f _Z / white_point[2]
+      fx = f _X / ref_X
+      fy = f _Y / ref_Y
+      fz = f _Z / ref_Z
       _L = 116 * fy - 16
       _a = 500 * (fx - fy)
       _b = 200 * (fy - fz)
       [_L, _a, _b]
+    to_CIELUV: (_X, _Y, _Z) ->
+      var_U = (4 * _X) / (_X + (15 * _Y) + (3 * _Z))
+      var_V = (9 * _Y) / (_X + (15 * _Y) + (3 * _Z))
+      _L = 116 * f(_Y / ref_Y) - 16
+      # Black will create a divide-by-zero error
+      if _L is 0
+        return [0, 0, 0]
+      _U = 13 * _L * (var_U - ref_U)
+      _V = 13 * _L * (var_V - ref_V)
+      [_L, _U, _V]
     to_CIELCH: (tuple...) ->
       lab = conv.from_CIEXYZ.to_CIELAB tuple...
       conv.from_CIELAB.to_CIELCH lab...
@@ -88,21 +109,28 @@ conv =
       if _y is 0
         return [0, 0, 0]
       _X = _x * _Y / _y
-      _Z = (1 - _x - _y) * _Y / _y 
+      _Z = (1 - _x - _y) * _Y / _y
+      [_X, _Y, _Z]
+  from_CIELUV:
+    to_CIEXYZ: (_L, _U, _V) ->
+      # Black will create a divide-by-zero error
+      if _L is 0
+        return [0, 0, 0]
+      var_Y = f_inv (_L + 16) / 116
+      var_U = _U / (13 * _L) + ref_U
+      var_V = _V / (13 * _L) + ref_V
+      _Y = var_Y * ref_Y
+      _X = 0 - (9 * _Y * var_U) / ((var_U - 4) * var_V - var_U * var_V)
+      _Z = (9 * _Y - (15 * var_V * _Y) - (var_V * _X)) / (3 * var_V)
       [_X, _Y, _Z]
   from_CIELAB:
     to_CIEXYZ: (_L, _a, _b) ->
       var_y = (_L + 16) / 116
       var_z = var_y - _b / 200
       var_x = _a / 500 + var_y
-      f_inv = (t) ->
-        if Math.pow(t, 3) > lab_e
-          Math.pow(t, 3)
-        else
-          (116 * t - 16) / lab_k
-      _X = white_point[0] * f_inv(var_x)
-      _Y = white_point[1] * f_inv(var_y)
-      _Z = white_point[2] * f_inv(var_z)
+      _X = ref_X * f_inv(var_x)
+      _Y = ref_Y * f_inv(var_y)
+      _Z = ref_Z * f_inv(var_z)
       [_X, _Y, _Z]
     to_CIELCH: (_L, _a, _b) ->
       _C = Math.pow Math.pow(_a, 2) + Math.pow(_b, 2), 1 / 2
@@ -132,15 +160,26 @@ conv =
       rgb = conv.from_hex.to_sRGB hex
       conv.from_sRGB.to_CIEXYZ rgb...
 
+# Rounds number to a given number of decimal spaces
+round = (num, spaces) ->
+  m = Math.pow 10, spaces
+  return Math.round(num * m) / m
+
 # Returns whether given color coordinates fit within their valid range
 validate = (space, tuple) ->
   if space is 'sRGB'
-    if tuple.length isnt 3
-      return false
-    for primary in tuple
-      if primary < 0 or primary > 1
-        return false
+    req = [[0, 1], [0, 1], [0, 1]]
+    tuple = (round(n, 4) for n in tuple)
+  else if space is 'CIEXYZ'
+    req = [[0, 0.95050], [0, 1.00000], [0, 1.08900]]
+    tuple = (round(n, 4) for n in tuple)
+  else
     return true
+  if tuple.length isnt req.length
+    return false
+  for i in [0..tuple.length - 1]
+    if tuple[i] < req[i][0] or tuple[i] > req[i][1]
+      return false
   return true
 
 # Export to node.js if exports object exists
@@ -149,13 +188,15 @@ root = exports ? {}
 root.make_color = (space, tuple) ->
   if space is 'hex'
     tuple = [tuple]
-  if not validate(tuple, space)
-    throw "Color is out of the gamut of the given color space"
+  if not validate(space, tuple)
+    throw new Error "Color is out of the gamut of the given color space"
   color = conv["from_" + space].to_CIEXYZ(tuple...)
+  if not validate('CIEXYZ', color)
+    throw new Error "Invalid color"
   as: (space) ->
     val = conv.from_CIEXYZ["to_" + space](color...)
-    if not validate(val, space)
-      throw "Color is out of the gamut of the requested color space"
+    if not validate(space, val)
+      throw new Error "Color is out of the gamut of the requested color space"
     return val
 
 # Export to jQuery if jQuery object exists
