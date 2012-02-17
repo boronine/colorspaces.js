@@ -86,6 +86,12 @@
         _V = 13 * _L * (var_V - ref_V);
         return [_L, _U, _V];
       },
+      to_CIELCHuv: function() {
+        var luv, tuple, _ref, _ref2;
+        tuple = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        luv = (_ref = conv.from_CIEXYZ).to_CIELUV.apply(_ref, tuple);
+        return (_ref2 = conv.from_CIELAB).to_CIELCH.apply(_ref2, luv);
+      },
       to_CIELCH: function() {
         var lab, tuple, _ref, _ref2;
         tuple = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
@@ -193,6 +199,14 @@
         tuple = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
         lab = (_ref = conv.from_CIELCH).to_CIELAB.apply(_ref, tuple);
         return (_ref2 = conv.from_CIELAB).to_CIEXYZ.apply(_ref2, lab);
+      }
+    },
+    from_CIELCHuv: {
+      to_CIEXYZ: function() {
+        var luv, tuple, _ref, _ref2;
+        tuple = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        luv = (_ref = conv.from_CIELCH).to_CIELAB.apply(_ref, tuple);
+        return (_ref2 = conv.from_CIELUV).to_CIEXYZ.apply(_ref2, luv);
       }
     },
     from_hex: {
