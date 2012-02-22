@@ -60,10 +60,9 @@ for name, definitions of colors
   console.log "Testing " + name
   # Make a color object for every definition of the test color
   for space1, tuple1 of definitions
-    color = colorspaces.make_color(space1, tuple1)
     # Convert each of those to every color space and compare
     for space2, tuple2 of definitions
-      output = color.as(space2)
+      output = colorspaces.converter(space1, space2)(tuple1)
       # If the target space is hex, simply compare the two for equality
       if space2 is 'hex'
         assert.ok output is tuple2, "\n

@@ -1,0 +1,55 @@
+<html>
+<head>
+<script>
+var jQuery = {};
+</script>
+<script src="colorspaces.js"></script>
+</head>
+<body>
+<canvas id="picker" height="200" width="360"></canvas>
+<div id="luminance" style="height:20px;width:100px;background-color:black;margin-top:20px;"></div>
+<div id="color"></div>
+<script>
+var L = 50;
+var picker = document.getElementById("picker");
+var luminance = document.getElementById("luminance");
+var color_name = document.getElementById("color");
+picker.onclick = function(event) {
+	pos_x = event.offsetX?(event.offsetX):event.pageX-picker.offsetLeft;
+	pos_y = event.offsetY?(event.offsetY):event.pageY-picker.offsetTop;
+	color_name.innerHTML = getColor(pos_x, pos_y).as('hex');
+}
+luminance.onclick = function(event) {
+	L = event.offsetX?(event.offsetX):event.pageX-picker.offsetLeft;
+	refresh();
+}
+converter = jQuery.colorspaces.converter('CIELCHuv', 'sRGB')
+function getColor(x, y) {
+	return converter([L, y, x]);
+}
+var c = picker.getContext("2d");
+var width = parseInt(picker.getAttribute("width"));
+var height = parseInt(picker.getAttribute("height"));
+function refresh() {
+	var imageData = c.createImageData(width, height);
+	for (var x = 0; x < width; x ++) {
+		for (var y = 0; y < height; y ++) {
+			var rgb = getColor(x, y);
+			if (!jQuery.colorspaces.validate('sRGB', rgb)) {
+				rgb = [0, 0, 0];
+			}
+			var r = rgb[0] * 256;
+			var g = rgb[1] * 256;
+			var b = rgb[2] * 256;
+			index = (x + y * imageData.width) * 4;
+			imageData.data[index+0] = r;
+			imageData.data[index+1] = g;
+			imageData.data[index+2] = b;
+			imageData.data[index+3] = 256;
+		}
+	}
+	c.putImageData(imageData, 0, 0);
+}
+refresh();
+</script>
+</body>
