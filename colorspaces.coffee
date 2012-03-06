@@ -1,5 +1,4 @@
 # All Math on this page comes from http://www.easyrgb.com
-# 
 dot_product = (a, b) ->
   ret = 0
   for i in [0..a.length-1]
@@ -192,7 +191,11 @@ converter = (from, to) ->
     ['CIELUV', 'CIEXYZ']
     ['sRGB', 'CIEXYZ']
   ]
-  # Recursively generate path by eliminating leaf nodes
+  # Recursively generate path. Each recursion makes the tree
+  # smaller by elimination a leaf node. This leaf node is either
+  # irrelevant to our conversion (trivial case) or it describes
+  # an endpoint of our conversion, in which case we add a new 
+  # step to the conversion and recurse.
   path = (tree, from, to) ->
     if from is to
       return (t) -> t
@@ -207,7 +210,7 @@ converter = (from, to) ->
     # If we need to end with hex, we know for a fact that the node
     # before it is going to be sRGB (others by analogy)
     if to is child
-      # We found the last step, not find the rest of the path and
+      # We found the last step, now find the rest of the path and
       # return their composition
       p = path(tree.slice(1), from, parent)
       return (t) -> conv[parent][child] p t
@@ -219,25 +222,18 @@ converter = (from, to) ->
   func = path tree, from, to
   return func
 
-# Rounds number to a given number of decimal spaces
-round = (num, spaces) ->
-  m = Math.pow 10, spaces
+# Rounds number to a given number of decimal places
+round = (num, places) ->
+  m = Math.pow 10, places
   return Math.round(num * m) / m
 
 # Returns whether given color coordinates fit within their valid range
-validate = (space, tuple) ->
-  if space is 'sRGB'
-    req = [[0, 1], [0, 1], [0, 1]]
-    tuple = (round(n, 4) for n in tuple)
-  else if space is 'CIEXYZ'
-    req = [[0, 0.95050], [0, 1.00000], [0, 1.08900]]
-    tuple = (round(n, 4) for n in tuple)
-  else
-    return true
-  if tuple.length isnt req.length
-    return false
-  for i in [0..tuple.length - 1]
-    if tuple[i] < req[i][0] or tuple[i] > req[i][1]
+within_range = (vector, ranges) ->
+  # Round to four decimal places to avoid rounding errors
+  # e.g. R_rgb = -0.0000000001
+  vector = (round(n, 4) for n in vector)
+  for i in [0..vector.length - 1]
+    if vector[i] < ranges[i][0] or vector[i] > ranges[i][1]
       return false
   return true
 
@@ -246,16 +242,16 @@ root = exports ? {}
 
 root.converter = converter
 
-root.validate = validate
-
 root.make_color = (space1, tuple) ->
-  if not validate(space1, tuple)
-    throw new Error "Color is out of the gamut of the given color space"
   as: (space2) ->
     val = converter(space1, space2)(tuple)
-    if not validate(space2, val)
-      throw new Error "Color is out of the gamut of the requested color space"
     return val
+  is_displayable: ->
+    val = converter(space1, 'sRGB')(tuple)
+    return within_range(val, [[0, 1], [0, 1], [0, 1]])
+  is_visible: ->
+    val = converter(space1, 'CIEXYZ')(tuple)
+    return within_range(val, [[0, ref_X], [0, ref_Y], [0, ref_Z]])
 
 # Export to jQuery if jQuery object exists
 if jQuery?

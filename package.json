@@ -2,7 +2,7 @@
   "name": "colorspaces",
   "description": "A tiny library for manipulating colors",
   "keywords": ["color", "color space", "CIE", "RGB"],
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Alexei Boronine <alexei.boronine@gmail.com>",
   "main": "colorspaces.js",
   "files": ["colorspaces.js"],
