@@ -1,5 +1,5 @@
 (function() {
-  var conv, converter, dot_product, f, f_inv, lab_e, lab_k, polar_to_scalar, ref_U, ref_V, ref_X, ref_Y, ref_Z, root, round, scalar_to_polar, validate;
+  var conv, converter, dot_product, f, f_inv, lab_e, lab_k, polar_to_scalar, ref_U, ref_V, ref_X, ref_Y, ref_Z, root, round, scalar_to_polar, within_range;
   dot_product = function(a, b) {
     var i, ret, _ref;
     ret = 0;
@@ -220,43 +220,24 @@
     func = path(tree, from, to);
     return func;
   };
-  round = function(num, spaces) {
+  round = function(num, places) {
     var m;
-    m = Math.pow(10, spaces);
+    m = Math.pow(10, places);
     return Math.round(num * m) / m;
   };
-  validate = function(space, tuple) {
-    var i, n, req, _ref;
-    if (space === 'sRGB') {
-      req = [[0, 1], [0, 1], [0, 1]];
-      tuple = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = tuple.length; _i < _len; _i++) {
-          n = tuple[_i];
-          _results.push(round(n, 4));
-        }
-        return _results;
-      })();
-    } else if (space === 'CIEXYZ') {
-      req = [[0, 0.95050], [0, 1.00000], [0, 1.08900]];
-      tuple = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = tuple.length; _i < _len; _i++) {
-          n = tuple[_i];
-          _results.push(round(n, 4));
-        }
-        return _results;
-      })();
-    } else {
-      return true;
-    }
-    if (tuple.length !== req.length) {
-      return false;
-    }
-    for (i = 0, _ref = tuple.length - 1; 0 <= _ref ? i <= _ref : i >= _ref; 0 <= _ref ? i++ : i--) {
-      if (tuple[i] < req[i][0] || tuple[i] > req[i][1]) {
+  within_range = function(vector, ranges) {
+    var i, n, _ref;
+    vector = (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = vector.length; _i < _len; _i++) {
+        n = vector[_i];
+        _results.push(round(n, 4));
+      }
+      return _results;
+    })();
+    for (i = 0, _ref = vector.length - 1; 0 <= _ref ? i <= _ref : i >= _ref; 0 <= _ref ? i++ : i--) {
+      if (vector[i] < ranges[i][0] || vector[i] > ranges[i][1]) {
         return false;
       }
     }
@@ -264,19 +245,22 @@
   };
   root = typeof exports !== "undefined" && exports !== null ? exports : {};
   root.converter = converter;
-  root.validate = validate;
   root.make_color = function(space1, tuple) {
-    if (!validate(space1, tuple)) {
-      throw new Error("Color is out of the gamut of the given color space");
-    }
     return {
       as: function(space2) {
         var val;
         val = converter(space1, space2)(tuple);
-        if (!validate(space2, val)) {
-          throw new Error("Color is out of the gamut of the requested color space");
-        }
         return val;
+      },
+      is_displayable: function() {
+        var val;
+        val = converter(space1, 'sRGB')(tuple);
+        return within_range(val, [[0, 1], [0, 1], [0, 1]]);
+      },
+      is_visible: function() {
+        var val;
+        val = converter(space1, 'CIEXYZ')(tuple);
+        return within_range(val, [[0, ref_X], [0, ref_Y], [0, ref_Z]]);
       }
     };
   };
