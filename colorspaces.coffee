@@ -5,6 +5,21 @@ dot_product = (a, b) ->
     ret += a[i] * b[i]
   return ret
 
+# Rounds number to a given number of decimal places
+round = (num, places) ->
+  m = Math.pow 10, places
+  return Math.round(num * m) / m
+
+# Returns whether given color coordinates fit within their valid range
+within_range = (vector, ranges) ->
+  # Round to three decimal places to avoid rounding errors
+  # e.g. R_rgb = -0.0000000001
+  vector = (round(n, 3) for n in vector)
+  for i in [0..vector.length - 1]
+    if vector[i] < ranges[i][0] or vector[i] > ranges[i][1]
+      return false
+  return true
+
 # The D65 standard illuminant
 ref_X = 0.95047
 ref_Y = 1.00000
@@ -157,7 +172,10 @@ conv['CIELCHuv']['CIELUV'] = polar_to_scalar
 
 conv['sRGB']['hex'] = (tuple) ->
   hex = "#"
+  tuple = (round(n, 3) for n in tuple)
   for ch in tuple
+    if ch < 0 or ch > 1
+      throw new Error "Trying to represent non-displayable color as hex"
     ch = Math.round(ch * 255).toString(16)
     ch = "0" + ch if ch.length is 1
     hex += ch
@@ -221,21 +239,6 @@ converter = (from, to) ->
   # Main conversion function
   func = path tree, from, to
   return func
-
-# Rounds number to a given number of decimal places
-round = (num, places) ->
-  m = Math.pow 10, places
-  return Math.round(num * m) / m
-
-# Returns whether given color coordinates fit within their valid range
-within_range = (vector, ranges) ->
-  # Round to four decimal places to avoid rounding errors
-  # e.g. R_rgb = -0.0000000001
-  vector = (round(n, 3) for n in vector)
-  for i in [0..vector.length - 1]
-    if vector[i] < ranges[i][0] or vector[i] > ranges[i][1]
-      return false
-  return true
 
 # Export to node.js if exports object exists
 root = exports ? {}

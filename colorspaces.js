@@ -8,6 +8,29 @@
     }
     return ret;
   };
+  round = function(num, places) {
+    var m;
+    m = Math.pow(10, places);
+    return Math.round(num * m) / m;
+  };
+  within_range = function(vector, ranges) {
+    var i, n, _ref;
+    vector = (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = vector.length; _i < _len; _i++) {
+        n = vector[_i];
+        _results.push(round(n, 3));
+      }
+      return _results;
+    })();
+    for (i = 0, _ref = vector.length - 1; 0 <= _ref ? i <= _ref : i >= _ref; 0 <= _ref ? i++ : i--) {
+      if (vector[i] < ranges[i][0] || vector[i] > ranges[i][1]) {
+        return false;
+      }
+    }
+    return true;
+  };
   ref_X = 0.95047;
   ref_Y = 1.00000;
   ref_Z = 1.08883;
@@ -167,10 +190,22 @@
   conv['CIELCH']['CIELAB'] = polar_to_scalar;
   conv['CIELCHuv']['CIELUV'] = polar_to_scalar;
   conv['sRGB']['hex'] = function(tuple) {
-    var ch, hex, _i, _len;
+    var ch, hex, n, _i, _len;
     hex = "#";
+    tuple = (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = tuple.length; _i < _len; _i++) {
+        n = tuple[_i];
+        _results.push(round(n, 3));
+      }
+      return _results;
+    })();
     for (_i = 0, _len = tuple.length; _i < _len; _i++) {
       ch = tuple[_i];
+      if (ch < 0 || ch > 1) {
+        throw new Error("Trying to represent non-displayable color as hex");
+      }
       ch = Math.round(ch * 255).toString(16);
       if (ch.length === 1) {
         ch = "0" + ch;
@@ -219,29 +254,6 @@
     };
     func = path(tree, from, to);
     return func;
-  };
-  round = function(num, places) {
-    var m;
-    m = Math.pow(10, places);
-    return Math.round(num * m) / m;
-  };
-  within_range = function(vector, ranges) {
-    var i, n, _ref;
-    vector = (function() {
-      var _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = vector.length; _i < _len; _i++) {
-        n = vector[_i];
-        _results.push(round(n, 4));
-      }
-      return _results;
-    })();
-    for (i = 0, _ref = vector.length - 1; 0 <= _ref ? i <= _ref : i >= _ref; 0 <= _ref ? i++ : i--) {
-      if (vector[i] < ranges[i][0] || vector[i] > ranges[i][1]) {
-        return false;
-      }
-    }
-    return true;
   };
   root = typeof exports !== "undefined" && exports !== null ? exports : {};
   root.converter = converter;
