@@ -82,3 +82,16 @@ for name, definitions of colors
         Output: #{output}\n
         Should be: #{tuple2}\n"
 
+# .use(colorspaces) doesn't seem to work. Stylus doesn't throw
+# an error. For now refer to tests.styl to test Stylus support.
+# Eventually I want to test it programmatically
+
+"
+try
+  stylus = require 'stylus'
+if stylus?
+  stylus(styl).use(colorspaces).render (err, css) ->
+    throw err if err
+    console.log css
+"
+

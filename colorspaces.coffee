@@ -176,7 +176,7 @@ sRGB_prepare = (tuple) ->
   tuple = (round(n, 3) for n in tuple)
   for ch in tuple
     if ch < 0 or ch > 1
-      throw new Error "Trying to represent non-displayable color as hex"
+      throw new Error "Illegal sRGB value"
   (Math.round(ch * 255) for ch in tuple)
 
 conv['sRGB']['hex'] = (tuple) ->
@@ -259,7 +259,7 @@ try
         # programming, grow gills and move to the ocean
         style.define space, ((sp) ->
           (a, b, c) ->
-            foo = converter space, 'sRGB'
+            foo = converter sp, 'sRGB'
             [r, g, b] = sRGB_prepare foo [a.val, b.val, c.val]
             new stylus.nodes.RGBA(r, g, b, 1)
         )(space)
