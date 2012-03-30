@@ -287,10 +287,10 @@
         _results = [];
         for (_i = 0, _len = spaces.length; _i < _len; _i++) {
           space = spaces[_i];
-          _results.push(style.define(space, (function(sp) {
+          _results.push(style.define(space, (function(space) {
             return function(a, b, c) {
               var foo, g, r, _ref;
-              foo = converter(sp, 'sRGB');
+              foo = converter(space, 'sRGB');
               _ref = sRGB_prepare(foo([a.val, b.val, c.val])), r = _ref[0], g = _ref[1], b = _ref[2];
               return new stylus.nodes.RGBA(r, g, b, 1);
             };

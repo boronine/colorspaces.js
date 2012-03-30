@@ -254,15 +254,11 @@ try
     spaces = (space for space of conv when space not in ['sRGB', 'hex'])
     (style) ->
       for space in spaces
-        # The code breaks unless you wrap it in ((sp) -> ...)(space)
-        # If I spend another minute debugging this problem I will quit
-        # programming, grow gills and move to the ocean
-        style.define space, ((sp) ->
+        style.define space, do (space) ->
           (a, b, c) ->
-            foo = converter sp, 'sRGB'
+            foo = converter space, 'sRGB'
             [r, g, b] = sRGB_prepare foo [a.val, b.val, c.val]
             new stylus.nodes.RGBA(r, g, b, 1)
-        )(space)
 
 # Export to node.js if exports object exists
 root = exports ? {}
