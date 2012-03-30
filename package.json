@@ -1,8 +1,8 @@
 {
   "name": "colorspaces",
   "description": "A tiny library for manipulating colors",
-  "keywords": ["color", "color space", "CIE", "RGB"],
-  "version": "0.0.2",
+  "keywords": ["color", "color space", "CIE", "RGB", "stylus"],
+  "version": "0.1.0",
   "author": "Alexei Boronine <alexei.boronine@gmail.com>",
   "main": "colorspaces.js",
   "files": ["colorspaces.js"],

@@ -170,13 +170,20 @@ polar_to_scalar = (tuple) ->
 conv['CIELCH']['CIELAB'] = polar_to_scalar
 conv['CIELCHuv']['CIELUV'] = polar_to_scalar
 
-conv['sRGB']['hex'] = (tuple) ->
-  hex = "#"
+# Represents sRGB [0-1] values as [0-225] values. Errors out if value
+# out of the range
+sRGB_prepare = (tuple) ->
   tuple = (round(n, 3) for n in tuple)
   for ch in tuple
     if ch < 0 or ch > 1
       throw new Error "Trying to represent non-displayable color as hex"
-    ch = Math.round(ch * 255).toString(16)
+  (Math.round(ch * 255) for ch in tuple)
+
+conv['sRGB']['hex'] = (tuple) ->
+  hex = "#"
+  tuple = sRGB_prepare tuple
+  for ch in tuple
+    ch = ch.toString(16)
     ch = "0" + ch if ch.length is 1
     hex += ch
   hex
@@ -240,6 +247,23 @@ converter = (from, to) ->
   func = path tree, from, to
   return func
 
+# Make a stylus plugin if stylus exists
+try
+  stylus = require 'stylus'
+  exports = module.exports = ->
+    spaces = (space for space of conv when space not in ['sRGB', 'hex'])
+    (style) ->
+      for space in spaces
+        # The code breaks unless you wrap it in ((sp) -> ...)(space)
+        # If I spend another minute debugging this problem I will quit
+        # programming, grow gills and move to the ocean
+        style.define space, ((sp) ->
+          (a, b, c) ->
+            foo = converter space, 'sRGB'
+            [r, g, b] = sRGB_prepare foo [a.val, b.val, c.val]
+            new stylus.nodes.RGBA(r, g, b, 1)
+        )(space)
+
 # Export to node.js if exports object exists
 root = exports ? {}
 
@@ -255,8 +279,3 @@ root.make_color = (space1, tuple) ->
   is_visible: ->
     val = converter(space1, 'CIEXYZ')(tuple)
     return within_range(val, [[0, ref_X], [0, ref_Y], [0, ref_Z]])
-
-# Export to jQuery if jQuery object exists
-if jQuery?
-  jQuery.colorspaces = root
-
