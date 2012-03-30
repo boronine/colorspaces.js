@@ -3,7 +3,7 @@ layout: default
 title: colorspaces.js
 ---
 
-RGB, the color space we use here on the web is based on display technology, not human color perception. Most meaningful color operations are performed on colors in other color spaces, such as [CIEXYZ][CIEXYZ] or [CIELUV][CIELUV].
+RGB, the color space we use here on the web is based on display technology, not human color perception. Most meaningful color operations are performed on colors in other color spaces, such as [CIEXYZ][CIEXYZ] or [CIELUV][CIELUV]. Read more about color spaces in [my blog post](http://boronine.com/2012/03/26/Color-Spaces-for-Human-Beings/).
 
 ## Basic Use
 
@@ -35,6 +35,24 @@ If you need to do many color conversions per second, you can optimize by using a
 > conv([53.233, 175.053, 37.75])
 '#ff0000'
 {% endhighlight %}
+
+## Stylus Support
+
+To use colorspaces.js as a Stylus plugin, you have to run it like this:
+
+{% highlight bash %}
+$ stylus < in.styl > out.css -u /path/to/colorspaces.js
+{% endhighlight %}
+
+Now you have access to several functions that take numerical values and return a Stylus color. All color spaces below except for `hex` and `sRGB` are supported in the Stylus plugin. The Stylus function names match the color space names.
+
+    .someclass
+      color CIELCH(20.470, 74.265, 314.113)
+
+You can still modify its opacity with Stylus' `rgba` function:
+
+    .someclass
+      color rgba(CIELCH(20.470, 74.265, 314.113), 0.5)
 
 ## Supported Color Spaces
 
