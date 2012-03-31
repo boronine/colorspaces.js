@@ -57,7 +57,6 @@ big_dif = (tuple1, tuple2) ->
 
 # For every test color
 for name, definitions of colors
-  console.log "Testing " + name
   # Make a color object for every definition of the test color
   for space1, tuple1 of definitions
     # Convert each of those to every color space and compare
@@ -81,17 +80,34 @@ for name, definitions of colors
         Input: #{tuple1}\n
         Output: #{output}\n
         Should be: #{tuple2}\n"
+  console.log name + " ok"
 
-# .use(colorspaces) doesn't seem to work. Stylus doesn't throw
-# an error. For now refer to tests.styl to test Stylus support.
-# Eventually I want to test it programmatically
-
+styl = "
+.someclass\n
+  color CIEXYZ(0.30581, 0.16042, 0.0576)\n
+  color CIExyY(0.58380, 0.30625, 0.16042)\n
+  color CIELAB(47.030, 70.936, 33.595)\n
+  color CIELCH(47.030, 78.489, 25.342)\n
+  color CIELUV(47.030, 138.278, 19.641)\n
 "
+
+css = "
+.someclass {\n
+  color: #dc143c;\n
+  color: #dc143c;\n
+  color: #dc143c;\n
+  color: #dc143c;\n
+  color: #dc143c;\n
+}\n
+"
+
 try
   stylus = require 'stylus'
 if stylus?
-  stylus(styl).use(colorspaces).render (err, css) ->
+  stylus(styl).use(colorspaces()).render (err, test_css) ->
     throw err if err
-    console.log css
-"
+    if test_css is css
+      console.log 'Stylus works'
+    else
+      console.log 'STYLUS ERROR\n' + test_css
 
