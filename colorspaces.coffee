@@ -247,10 +247,12 @@ converter = (from, to) ->
   func = path tree, from, to
   return func
 
-# Make a stylus plugin if stylus exists
+root = {}
+
+# If Stylus is installed, make module.exports work as a plugin
 try
   stylus = require 'stylus'
-  module.exports = ->
+  root = ->
     spaces = (space for space of conv when space not in ['sRGB', 'hex'])
     (style) ->
       for space in spaces
@@ -260,21 +262,20 @@ try
             [r, g, b] = sRGB_prepare foo [a.val, b.val, c.val]
             new stylus.nodes.RGBA(r, g, b, 1)
 
-root = {
-  converter: converter
-  make_color: (space1, tuple) ->
-    as: (space2) ->
-      val = converter(space1, space2)(tuple)
-      return val
-    is_displayable: ->
-      val = converter(space1, 'sRGB')(tuple)
-      return within_range(val, [[0, 1], [0, 1], [0, 1]])
-    is_visible: ->
-      val = converter(space1, 'CIEXYZ')(tuple)
-      return within_range(val, [[0, ref_X], [0, ref_Y], [0, ref_Z]])
-}
+root.converter = converter
+root.make_color = (space1, tuple) ->
+  as: (space2) ->
+    val = converter(space1, space2)(tuple)
+    return val
+  is_displayable: ->
+    val = converter(space1, 'sRGB')(tuple)
+    return within_range(val, [[0, 1], [0, 1], [0, 1]])
+  is_visible: ->
+    val = converter(space1, 'CIEXYZ')(tuple)
+    return within_range(val, [[0, ref_X], [0, ref_Y], [0, ref_Z]])
 
 # Export to Node.js
 module.exports = root if module?
 # Export to jQuery
 jQuery.colorspaces = root if jQuery?
+# Make a stylus plugin if stylus exists

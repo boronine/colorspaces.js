@@ -301,9 +301,11 @@
     return func;
   };
 
+  root = {};
+
   try {
     stylus = require('stylus');
-    module.exports = function() {
+    root = function() {
       var space, spaces;
       spaces = (function() {
         var _results;
@@ -334,27 +336,26 @@
     };
   } catch (_error) {}
 
-  root = {
-    converter: converter,
-    make_color: function(space1, tuple) {
-      return {
-        as: function(space2) {
-          var val;
-          val = converter(space1, space2)(tuple);
-          return val;
-        },
-        is_displayable: function() {
-          var val;
-          val = converter(space1, 'sRGB')(tuple);
-          return within_range(val, [[0, 1], [0, 1], [0, 1]]);
-        },
-        is_visible: function() {
-          var val;
-          val = converter(space1, 'CIEXYZ')(tuple);
-          return within_range(val, [[0, ref_X], [0, ref_Y], [0, ref_Z]]);
-        }
-      };
-    }
+  root.converter = converter;
+
+  root.make_color = function(space1, tuple) {
+    return {
+      as: function(space2) {
+        var val;
+        val = converter(space1, space2)(tuple);
+        return val;
+      },
+      is_displayable: function() {
+        var val;
+        val = converter(space1, 'sRGB')(tuple);
+        return within_range(val, [[0, 1], [0, 1], [0, 1]]);
+      },
+      is_visible: function() {
+        var val;
+        val = converter(space1, 'CIEXYZ')(tuple);
+        return within_range(val, [[0, ref_X], [0, ref_Y], [0, ref_Z]]);
+      }
+    };
   };
 
   if (typeof module !== "undefined" && module !== null) {
