@@ -52,6 +52,7 @@ conv =
   'CIELCH': {}
   'CIELUV': {}
   'CIELCHuv': {}
+  'LSH': {}
   'sRGB': {}
   'hex': {}
 
@@ -170,6 +171,18 @@ polar_to_scalar = (tuple) ->
 conv['CIELCH']['CIELAB'] = polar_to_scalar
 conv['CIELCHuv']['CIELUV'] = polar_to_scalar
 
+conv['LSH']['CIELCHuv'] = (tuple) ->
+  [_L, _S, _h] = tuple
+  max = maxChroma _L _h
+  _C = max / 100 * _S
+  return [_L, _C, _h]
+
+conv['CIELCHuv']['LSH'] = (tuple) ->
+  [_L, _C, _h] = tuple
+  max = maxChroma _L _h
+  _S = _C / max * 100
+  return [_L, _S, _h]
+
 # Represents sRGB [0-1] values as [0-225] values. Errors out if value
 # out of the range
 sRGB_prepare = (tuple) ->
@@ -209,6 +222,7 @@ converter = (from, to) ->
   # Topologically sorted nodes (child, parent)
   tree = [
     ['CIELCH', 'CIELAB']
+    ['LSH', 'CIELCHuv']
     ['CIELCHuv', 'CIELUV']
     ['hex', 'sRGB']
     ['CIExyY', 'CIEXYZ']
@@ -279,3 +293,37 @@ module.exports = root if module?
 # Export to jQuery
 jQuery.colorspaces = root if jQuery?
 # Make a stylus plugin if stylus exists
+
+to_linear = (c) ->
+  a = 0.055
+  if c > 0.04045
+    Math.pow (c + a) / (1 + a), 2.4
+  else
+    c / 12.92
+
+m = [
+  [3.2406, -1.5372, -0.4986]
+  [-0.9689, 1.8758,  0.0415]
+  [0.0557, -0.2040,  1.0570]
+]
+
+maxChroma = (L, H) ->
+
+  H_rad = H / 360 * 2 * Math.PI #
+
+  sub1 = 3 - ref_U * 0.75 - ref_V * 5
+  sub2 = ref_U * 2.25
+  cos = Math.cos(H_rad)
+  sin = Math.sin(H_rad)
+
+  result = 200
+  sub4 = ref_Y / f_inv (L + 16) / 116
+
+  for i in [0, 1, 2]
+    for num in [0, 1]
+      sub3 = to_linear(num) * sub4
+      C = (ref_V * sub3 - dot_product(m[i], [sub2, ref_V, sub1])) /
+        (dot_product(m[i], [cos * 2.25, sin, -cos * 0.75 - sin * 5]) - sin * sub3) * 13 * L
+      if C > 0
+        result = Math.min result, C
+  return result
