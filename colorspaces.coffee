@@ -1,3 +1,41 @@
+# Used for sRGB <-> CIEXYZ conversions
+m = [
+  [3.2406, -1.5372, -0.4986]
+  [-0.9689, 1.8758,  0.0415]
+  [0.0557, -0.2040,  1.0570]
+]
+m_inv = [
+  [0.4124, 0.3576, 0.1805]
+  [0.2126, 0.7152, 0.0722]
+  [0.0193, 0.1192, 0.9505]
+]
+
+# Used for HuSL conversion
+maxChroma = (L, H) ->
+  hrad = H / 360 * 2 * Math.PI
+  sinH = Math.sin hrad
+  cosH = Math.cos hrad
+  sub1 = Math.pow(L + 16, 3) / 1560896
+  sub2 = if sub1 > (1107 / 125000) then sub1 else 10 * L / 9033
+  result = Infinity
+  for i in [0, 1, 2]
+    [m1, m2, m3] = m[i]
+    top = (0.9991 * m1 + 1.0512 * m2 + 1.1446 * m3) * L
+    rbottom = (0.8633 * m3 - 0.1727 * m2) * sinH
+    lbottom = (0.1295 * m3 - 0.3885 * m1) * cosH
+    bottom = rbottom + lbottom
+    # Solve for [R, G, B] = 0
+    # TODO: This one might be unnecessary, let's do some math
+    # to figure it out, for now I'll keep it
+    res = top / bottom
+    if res > 0
+      result = Math.min res, result
+    # Solve for [R, G, B] = 1
+    res = (top * sub2 - 1.051 * L) / (bottom * sub2 + 1.7266 * sinH)
+    if res > 0
+      result = Math.min res, result
+  return result
+
 # All Math on this page comes from http://www.easyrgb.com
 dot_product = (a, b) ->
   ret = 0
@@ -43,6 +81,19 @@ f_inv = (t) ->
   else
     (116 * t - 16) / lab_k
 
+# Used for sRGB conversions
+from_linear = (c) ->
+  if c <= 0.0031308
+    12.92 * c
+  else
+    1.055 * Math.pow(c, 1 / 2.4) - 0.055
+to_linear = (c) ->
+  a = 0.055
+  if c > 0.04045
+    Math.pow (c + a) / (1 + a), 2.4
+  else
+    c / 12.92
+
 # This map will contain our conversion functions
 # conv[from][to] = (tuple) -> ...
 conv =
@@ -57,17 +108,6 @@ conv =
   'hex': {}
 
 conv['CIEXYZ']['sRGB'] = (tuple) ->
-  m = [
-    [3.2406, -1.5372, -0.4986]
-    [-0.9689, 1.8758,  0.0415]
-    [0.0557, -0.2040,  1.0570]
-  ]
-  from_linear = (c) ->
-    a = 0.055
-    if c <= 0.0031308
-      12.92 * c
-    else
-      1.055 * Math.pow(c, 1 / 2.4) - 0.055
   _R = from_linear dot_product m[0], tuple
   _G = from_linear dot_product m[1], tuple
   _B = from_linear dot_product m[2], tuple
@@ -75,21 +115,10 @@ conv['CIEXYZ']['sRGB'] = (tuple) ->
 
 conv['sRGB']['CIEXYZ'] = (tuple) ->
   [_R, _G, _B] = tuple
-  to_linear = (c) ->
-    a = 0.055
-    if c > 0.04045
-      Math.pow (c + a) / (1 + a), 2.4
-    else
-      c / 12.92
-  m = [
-    [0.4124, 0.3576, 0.1805]
-    [0.2126, 0.7152, 0.0722]
-    [0.0193, 0.1192, 0.9505]
-  ]
   rgbl = [to_linear(_R), to_linear(_G), to_linear(_B)]
-  _X = dot_product m[0], rgbl
-  _Y = dot_product m[1], rgbl
-  _Z = dot_product m[2], rgbl
+  _X = dot_product m_inv[0], rgbl
+  _Y = dot_product m_inv[1], rgbl
+  _Z = dot_product m_inv[2], rgbl
   [_X, _Y, _Z]
 
 conv['CIEXYZ']['CIExyY'] = (tuple) ->
@@ -144,7 +173,7 @@ conv['CIELUV']['CIEXYZ'] = (tuple) ->
   # Black will create a divide-by-zero error
   if _L is 0
     return [0, 0, 0]
-  var_Y = f_inv (_L + 16) / 116
+  var_Y = f_inv((_L + 16) / 116)
   var_U = _U / (13 * _L) + ref_U
   var_V = _V / (13 * _L) + ref_V
   _Y = var_Y * ref_Y
@@ -173,13 +202,13 @@ conv['CIELCHuv']['CIELUV'] = polar_to_scalar
 
 conv['LSH']['CIELCHuv'] = (tuple) ->
   [_L, _S, _h] = tuple
-  max = maxChroma _L _h
+  max = maxChroma _L, _h
   _C = max / 100 * _S
   return [_L, _C, _h]
 
 conv['CIELCHuv']['LSH'] = (tuple) ->
   [_L, _C, _h] = tuple
-  max = maxChroma _L _h
+  max = maxChroma _L, _h
   _S = _C / max * 100
   return [_L, _S, _h]
 
@@ -293,37 +322,3 @@ module.exports = root if module?
 # Export to jQuery
 jQuery.colorspaces = root if jQuery?
 # Make a stylus plugin if stylus exists
-
-to_linear = (c) ->
-  a = 0.055
-  if c > 0.04045
-    Math.pow (c + a) / (1 + a), 2.4
-  else
-    c / 12.92
-
-m = [
-  [3.2406, -1.5372, -0.4986]
-  [-0.9689, 1.8758,  0.0415]
-  [0.0557, -0.2040,  1.0570]
-]
-
-maxChroma = (L, H) ->
-
-  H_rad = H / 360 * 2 * Math.PI #
-
-  sub1 = 3 - ref_U * 0.75 - ref_V * 5
-  sub2 = ref_U * 2.25
-  cos = Math.cos(H_rad)
-  sin = Math.sin(H_rad)
-
-  result = 200
-  sub4 = ref_Y / f_inv (L + 16) / 116
-
-  for i in [0, 1, 2]
-    for num in [0, 1]
-      sub3 = to_linear(num) * sub4
-      C = (ref_V * sub3 - dot_product(m[i], [sub2, ref_V, sub1])) /
-        (dot_product(m[i], [cos * 2.25, sin, -cos * 0.75 - sin * 5]) - sin * sub3) * 13 * L
-      if C > 0
-        result = Math.min result, C
-  return result
