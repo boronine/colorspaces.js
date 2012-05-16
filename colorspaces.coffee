@@ -45,8 +45,8 @@ dot_product = (a, b) ->
 
 # Rounds number to a given number of decimal places
 round = (num, places) ->
-  m = Math.pow 10, places
-  return Math.round(num * m) / m
+  n = Math.pow 10, places
+  return Math.round(num * n) / n
 
 # Returns whether given color coordinates fit within their valid range
 within_range = (vector, ranges) ->

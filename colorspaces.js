@@ -44,8 +44,9 @@
   };
 
   round = function(num, places) {
-    m = Math.pow(10, places);
-    return Math.round(num * m) / m;
+    var n;
+    n = Math.pow(10, places);
+    return Math.round(num * n) / n;
   };
 
   within_range = function(vector, ranges) {
