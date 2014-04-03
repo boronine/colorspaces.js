@@ -1,1 +1,1 @@
-Read about it [here](http://boronine.github.com/colorspaces.js/).
+Read about it [here](http://www.boronine.com/colorspaces.js/).
