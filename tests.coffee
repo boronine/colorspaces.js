@@ -92,22 +92,25 @@ styl = "
 "
 
 css = "
-.someclass {\n
-  color: #dc143c;\n
-  color: #dc143c;\n
-  color: #dc143c;\n
-  color: #dc143c;\n
-  color: #dc143c;\n
-}\n
+.someclass {
+  color: #dc143c;
+  color: #dc143c;
+  color: #dc143c;
+  color: #dc143c;
+  color: #dc143c;
+}
 "
+
+# Whitespace doesn't matter
+nows = (text) -> text.replace /\s+/g, ''
 
 try
   stylus = require 'stylus'
 if stylus?
   stylus(styl).use(colorspaces()).render (err, test_css) ->
     throw err if err
-    if test_css is css
+    if nows(test_css) is nows(css)
       console.log 'Stylus works'
     else
-      console.log 'STYLUS ERROR\n' + test_css
+      console.log 'STYLUS ERROR' + test_css
 
