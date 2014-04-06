@@ -6,9 +6,14 @@
   "author": "Alexei Boronine <alexei.boronine@gmail.com>",
   "main": "colorspaces.js",
   "files": ["colorspaces.js"],
+  "devDependencies": {
+    "coffee-script": "*",
+    "uglify-js": "*",
+    "stylus": "*"
+  },
   "repository": {
     "type" : "git",
     "url" : "http://github.com/boronine/colorspaces.js.git"
   },
-  "homepage": "http://boronine.github.com/colorspaces.js/"
+  "homepage": "http://www.boronine.com/colorspaces.js/"
 }

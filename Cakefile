@@ -16,3 +16,7 @@ task 'docker:run', 'Run Docker container', ->
   ]
   console.log 'RUNNING docker ' + args.join(' ')
   spawn 'docker', args, {stdio: 'inherit'}
+
+task 'build:docs', 'Build docs with jekyll', ->
+  process.chdir 'docs'
+  spawn 'jekyll', [], {stdio: 'inherit'}
