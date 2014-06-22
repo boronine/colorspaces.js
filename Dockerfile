@@ -18,9 +18,4 @@ ENV PATH $PATH:/node_modules/.bin
 RUN apt-get install -y jekyll
 RUN apt-get install -y python-pygments
 
-RUN passwd --delete root
-RUN groupadd --gid 1000 admin
-RUN useradd --gid 1000 --uid 1000 admin
-USER admin
-
 WORKDIR /colorspaces
