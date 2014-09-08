@@ -1,0 +1,115 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <title>colorspaces.js</title>
+  <meta name="description" content="colorspaces.js - a tiny jQuery library for manipulating colors">
+  <meta name="author" content="Alexei Boronine">
+  <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono|Droid+Serif' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/highlight-default.min.css">
+  <script src='js/highlight.min.js'></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<body>
+<a href="https://github.com/boronine/colorspaces.js"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
+<div id="content">
+<header>
+<h1>colorspaces.js</h1>
+<p>A tiny <a href="http://jquery.com">jQuery</a> and <a href="http://nodejs.org">Node.js</a> library for manipulating colors. Works as a <a href="http://learnboost.github.com/stylus/">Stylus</a> plugin!</p>
+</header>
+<p>RGB, the color space we use here on the web is based on display technology, not human color perception. Most meaningful color operations are performed on colors in other color spaces, such as <a href='http://en.wikipedia.org/wiki/CIE_1931_color_space'>CIEXYZ</a> or <a href='http://en.wikipedia.org/wiki/CIELUV'>CIELUV</a>. Read more about color spaces in <a href='http://boronine.com/2012/03/26/Color-Spaces-for-Human-Beings/'>my blog post</a>.</p>
+
+<h2 id='basic_use'>Basic Use</h2>
+
+<p><code>colorspaces.make_color</code> takes two arguments: the name of the color space and an array of values representing the color in the color space.</p>
+
+<pre><code class="javascript">var red = $.colorspaces.make_color(&#39;sRGB&#39;, [1, 0, 0]);
+var green = $.colorspaces.make_color(&#39;hex&#39;, &#39;#00ff00&#39;);
+var blue = $.colorspaces.make_color(&#39;CIEXYZ&#39;, [0.1805, 0.0722, 0.9505]);</code></pre>
+
+<p>The returned object has a method, <code>as</code>, that takes the name of a color space as its only argument and returns the coordinates of the color in that color space as an array.</p>
+
+<pre><code class="javascript">&gt; red.as(&#39;CIELUV&#39;)
+[ 53.23288178584245, 175.05303573649485, 37.75050503266512 ]
+&gt; blue.as(&#39;hex&#39;)
+&#39;#0000ff&#39;</code></pre>
+
+<p>These color objects also support two methods, both returning a boolean: <code>is_displayable</code> and <code>is_visible</code>. The first one determines whether the color is within the sRGB gamut and the second determines whether the color is within the CIE XYZ gamut. Note that both of these methods round the resulting values to three decimal spaces before checking whether they fit into their range; this is a useful policy because of rounding errors.</p>
+
+<h2 id='lower_level'>Lower Level</h2>
+
+<p>If you need to do many color conversions per second, you can optimize by using a low-level function <code>converter</code> that takes two color space names as arguments and returns a converter function.</p>
+
+<pre><code class="javascript">&gt; var conv = colorspaces.converter(&#39;CIELUV&#39;, &#39;hex&#39;)
+&gt; conv([53.233, 175.053, 37.75])
+&#39;#ff0000&#39;</code></pre>
+
+<h2 id='stylus_support'>Stylus Support</h2>
+
+<p>You can use colorspaces.js in you Stylus stylesheets. From the command line, you have to run Stylus like this:</p>
+
+<pre><code class="bash">$ stylus &lt; in.styl &gt; out.css -u /path/to/colorspaces.js</code></pre>
+
+<p>Or if you are using it as middleware:</p>
+
+<pre><code class="javascript">var colorspaces = require(&#39;colorspaces&#39;);
+app.use(stylus.middleware({
+  src: __dirname + &#39;/app/views&#39;,
+  dest: __dirname + &#39;/public&#39;,
+  compile: function(str, path) {
+    return stylus(str)
+      .set(&#39;filename&#39;, path)
+      .use(colorspaces());
+  }
+});</code></pre>
+
+<p>Now you have access to several functions that take numerical values and return a Stylus color. All color spaces below except for <code>hex</code> and <code>sRGB</code> are supported in the Stylus plugin. The Stylus function names match the color space names.</p>
+
+<pre><code class="css">.someclass {
+  color: CIELCH(20.470, 74.265, 314.113);
+}</code></pre>
+
+<p>You can still modify its opacity with Stylus&#8217; <code>rgba</code> function:</p>
+
+<pre><code class="css">.someclass {
+  color: rgba(CIELCH(20.470, 74.265, 314.113), 0.5);
+}</code></pre>
+
+<h2 id='supported_color_spaces'>Supported Color Spaces</h2>
+
+<ul>
+<li><a href='http://en.wikipedia.org/wiki/SRGB'><code>sRGB</code></a>: Standard RGB, the color space used on the web. All values range between 0 and 1. Be careful, rounding errors can result in values just outside this range.</li>
+
+<li><a href='http://en.wikipedia.org/wiki/CIE_1931_color_space'><code>CIEXYZ</code></a>: One of the first mathematically defined color spaces. Values range between 0 and 0.95047, 1.0 and 1.08883 for X, Y and Z respectively. These three numbers together define the white point, which can be different depending on the chosen illuminant. The commonly used <a href='http://en.wikipedia.org/wiki/Illuminant_D65'>illuminant D65</a> was chosen for this project.</li>
+
+<li><code>CIExyY</code>: Normalized version of the above.</li>
+
+<li><a href='http://en.wikipedia.org/wiki/Lab_color_space'><code>CIELAB</code></a>: A color space made for perceptual uniformity. Recommended for characterization of color surfaces and dyes. L is lightness, spans from 0 to 100.</li>
+
+<li><code>CIELCH</code>: A cylindrical representation of CIELAB. L is lightness, C is chroma (think saturation) and H is hue. H spans from 0 to 360.</li>
+
+<li><a href='http://en.wikipedia.org/wiki/CIELUV'><code>CIELUV</code></a>: Another color space made for perceptual uniformity. Recommended for characterization of color displays.</li>
+
+<li><code>CIELCHuv</code>: Same as CIELCH, but based on CIELUV.</li>
+
+<li><code>hex</code>: A representation of sRGB.</li>
+</ul>
+
+<p>Download the latest <code>colorspaces.js</code> file from my <a href='http://github.com/boronine/colorspaces.js'>github repo</a> or install via <code>npm install colorspaces</code>.</p>
+<footer>
+&copy; Copyright 2011 by Alexei Boronine
+</footer>
+</div>
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-26004435-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+</body>
+</html>
