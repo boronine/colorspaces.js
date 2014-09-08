@@ -9,7 +9,9 @@
   "devDependencies": {
     "coffee-script": "*",
     "uglify-js": "*",
-    "stylus": "*"
+    "stylus": "*",
+    "highlight.js": "*",
+    "marked": "*"
   },
   "repository": {
     "type" : "git",

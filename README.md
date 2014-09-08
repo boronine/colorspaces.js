@@ -1,5 +1,7 @@
 # colorspaces.js
 
+A tiny JavaScript and [Node.js](http://nodejs.org) library for manipulating colors. Works as a [Stylus](http://learnboost.github.com/stylus) plugin!
+
 RGB, the color space we use here on the web is based on display technology, not human color perception. Most meaningful color operations are performed on colors in other color spaces, such as [CIEXYZ][CIEXYZ] or [CIELUV][CIELUV]. Read more about color spaces in [my blog post](http://boronine.com/2012/03/26/Color-Spaces-for-Human-Beings/).
 
 ## Installation
@@ -44,7 +46,7 @@ If you need to do many color conversions per second, you can optimize by using a
 You can use colorspaces.js in you Stylus stylesheets. From the command line, you have to run Stylus like this:
 
 ```bash
-$ stylus < in.styl > out.css -u /path/to/colorspaces.js
+$ stylus -u colorspaces < in.styl
 ```
 
 Or if you are using it as middleware:
@@ -87,7 +89,9 @@ You can still modify its opacity with Stylus' `rgba` function:
 
 Run `npm install` to install everything necessary to build and test the repo.
 
-To build: `make colorspace.min.js`.
+To build: `cake build:js`.
+
+To build documentation: `cake build:docs`.
 
 To test: `coffee tests.coffee`.
 
