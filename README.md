@@ -43,25 +43,23 @@ If you need to do many color conversions per second, you can optimize by using a
 
 ## Stylus Support
 
-You can use colorspaces.js in you Stylus stylesheets. From the command line, you have to run Stylus like this:
+You can use colorspaces.js in you Stylus stylesheets. Note that colorspaces does not have Stylus as a dependency, you must install both explicitly before proceeding.
+
+From the command line, you have to run Stylus like this:
 
 ```bash
 $ stylus -u colorspaces < in.styl
 ```
 
-Or if you are using it as middleware:
+Or if you are using it programmatically:
 
 ```javascript
+var stylus = require('stylus');
 var colorspaces = require('colorspaces');
-app.use(stylus.middleware({
-  src: __dirname + '/app/views',
-  dest: __dirname + '/public',
-  compile: function(str, path) {
-    return stylus(str)
-      .set('filename', path)
-      .use(colorspaces());
-  }
-});
+
+function renderWithColorspaces(str) {
+	return stylus(str).use(colorspaces()).render();
+}
 ```
 
 Now you have access to several functions that take numerical values and return a Stylus color. All color spaces below except for `hex` and `sRGB` are supported in the Stylus plugin. The Stylus function names match the color space names.
