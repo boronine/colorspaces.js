@@ -4,6 +4,9 @@ fs = require 'fs'
 task 'build:js', 'Build JavaScript file and minified version', ->
   exec "coffee --compile colorspaces.coffee && uglifyjs colorspaces.js > colorspaces.min.js"
 
+task 'deploy', 'Deploy to S3', ->
+  exec "aws s3 sync docs s3://colorspaces.boronine.com"
+
 task 'build:docs', ->
   highlight = require 'highlight.js'
   marked = require 'marked'
