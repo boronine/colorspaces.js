@@ -35,7 +35,7 @@ task 'build:docs', ->
     <div id="content">
       #{readme_html}
       <footer>
-      &copy; Copyright 2014 by Alexei Boronine
+      &copy; Copyright 2016 by Alexei Boronine
       </footer>
     </div>
     <script type="text/javascript">

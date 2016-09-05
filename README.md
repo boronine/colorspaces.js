@@ -1,8 +1,8 @@
 # colorspaces.js
 
-**NOTE: If all you want is perceptually uniform colors, check out [HUSL](https://github.com/boronine/husl/tree/master) instead.**
+**NOTE: If all you want is perceptually uniform colors, check out [HUSL](http://www.husl-colors.org/) instead.**
 
-A tiny JavaScript and [Node.js](http://nodejs.org) library for manipulating colors. Works as a [Stylus](http://learnboost.github.com/stylus) plugin!
+A tiny JavaScript and [Node.js](http://nodejs.org) library for manipulating colors. Works as a [Stylus](http://stylus-lang.com/) plugin!
 
 
 RGB, the color space we use here on the web is based on display technology, not human color perception. Most meaningful color operations are performed on colors in other color spaces, such as [CIEXYZ][CIEXYZ] or [CIELUV][CIELUV]. Read more about color spaces in [my blog post](http://www.boronine.com/2012/03/26/Color-Spaces-for-Human-Beings/).
