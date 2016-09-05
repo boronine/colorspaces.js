@@ -94,7 +94,7 @@ To build: `cake build:js`.
 
 To build documentation: `cake build:docs`.
 
-To test: `coffee tests.coffee`.
+To test: `node src/tests.js`.
 
 [CIEXYZ]: http://en.wikipedia.org/wiki/CIE_1931_color_space
 [CIELAB]: http://en.wikipedia.org/wiki/Lab_color_space
