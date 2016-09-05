@@ -1,5 +1,3 @@
-'use strict';
-
 (function () {
 
   // All Math on this page comes from http://www.easyrgb.com
@@ -384,5 +382,6 @@
     }
     return range;
   }
+  
 })();
 

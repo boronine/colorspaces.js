@@ -90,11 +90,7 @@ You can still modify its opacity with Stylus' `rgba` function:
 
 Run `npm install` to install everything necessary to build and test the repo.
 
-To build: `cake build:js`.
-
-To build documentation: `cake build:docs`.
-
-To test: `node src/tests.js`.
+See `Makefile`.
 
 [CIEXYZ]: http://en.wikipedia.org/wiki/CIE_1931_color_space
 [CIELAB]: http://en.wikipedia.org/wiki/Lab_color_space

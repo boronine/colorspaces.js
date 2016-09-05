@@ -1,5 +1,3 @@
-"use strict";
-
 var fs = require('fs');
 var highlight = require('highlight.js');
 var marked = require('marked');
@@ -13,10 +11,10 @@ marked.setOptions({
   }
 });
 
-let readme = fs.readFileSync('README.md', {encoding: 'utf-8'});
-let readme_html = marked(readme);
+var readme = fs.readFileSync('README.md', {encoding: 'utf-8'});
+var readme_html = marked(readme);
 
-let full_html = `<!doctype html>
+var full_html = `<!doctype html>
 <head>
   <meta charset="utf-8">
   <title>colorspaces.js</title>

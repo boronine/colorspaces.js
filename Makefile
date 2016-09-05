@@ -1,8 +1,5 @@
-docs/index.html: src/build.js
-	node src/build.js > docs/index.html
-
-colorspaces.js: src/colorspaces.js
-	node_modules/.bin/babel --presets es2015 src/colorspaces.js > colorspaces.js
+docs/index.html: homepage.js
+	node homepage.js > docs/index.html
 
 colorspaces.min.js: colorspaces.js
 	node_modules/.bin/uglifyjs colorspaces.js > colorspaces.min.js
@@ -10,4 +7,7 @@ colorspaces.min.js: colorspaces.js
 deploy:
 	aws s3 sync docs s3://colorspaces.boronine.com
 
-.PHONY: deploy
+test:
+	node tests.js
+
+.PHONY: deploy, test
