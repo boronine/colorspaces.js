@@ -77,14 +77,16 @@ You can still modify its opacity with Stylus' `rgba` function:
 
 ## Supported Color Spaces
 
+All color spaces below define colors via numeric components. Sometimes the ranges for these numbers are strictly defined, sometimes they are unknown (e.g. the upper limit on chroma is undefined in CIE color spaces). This can be a problem if you want to generate colors in a perceptually uniform color space. To get around this problem I created [HUSL](http://www.husl-colors.org), a version of CIELCHuv with a bounded chroma component.
+
  * [`sRGB`][sRGB]: Standard RGB, the color space used on the web. All values range between 0 and 1. Be careful, rounding errors can result in values just outside this range.
  * [`CIEXYZ`][CIEXYZ]: One of the first mathematically defined color spaces. Values range between 0 and 0.95047, 1.0 and 1.08883 for X, Y and Z respectively. These three numbers together define the white point, which can be different depending on the chosen illuminant. The commonly used [illuminant D65](http://en.wikipedia.org/wiki/Illuminant_D65) was chosen for this project.
  * `CIExyY`: Normalized version of the above.
- * [`CIELAB`][CIELAB]: A color space made for perceptual uniformity. Recommended for characterization of color surfaces and dyes. L is lightness, spans from 0 to 100.
- * `CIELCH`: A cylindrical representation of CIELAB. L is lightness, C is chroma (think saturation) and H is hue. H spans from 0 to 360.
- * [`CIELUV`][CIELUV]: Another color space made for perceptual uniformity. Recommended for characterization of color displays.
+ * [`CIELAB`][CIELAB]: A color space made for perceptual uniformity. Recommended for characterization of color surfaces and dyes. L is lightness (0-100).
+ * `CIELCH`: A cylindrical representation of CIELAB. L is lightness (0-100), C is chroma (think saturation) and H is hue (0-360).
+ * [`CIELUV`][CIELUV]: Another color space made for perceptual uniformity. Recommended for characterization of color displays. L is lightness (0-100).
  * `CIELCHuv`: Same as CIELCH, but based on CIELUV.
- * `hex`: A representation of sRGB.
+ * `hex`: A string representation of sRGB.
 
 ## Development
 
