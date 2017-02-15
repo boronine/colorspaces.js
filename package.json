@@ -2,19 +2,17 @@
   "name": "colorspaces",
   "description": "A tiny library for manipulating colors",
   "keywords": ["color", "color space", "CIE", "RGB", "stylus"],
-  "version": "0.1.4",
+  "version": "0.1.5",
   "author": "Alexei Boronine <alexei.boronine@gmail.com>",
   "main": "colorspaces.js",
   "files": ["colorspaces.js"],
   "devDependencies": {
     "uglify-js": "*",
-    "stylus": "*",
-    "highlight.js": "*",
-    "marked": "*"
+    "stylus": "*"
   },
   "repository": {
     "type" : "git",
     "url" : "http://github.com/boronine/colorspaces.js.git"
   },
-  "homepage": "http://colorspaces.boronine.com/"
+  "homepage": "http://github.com/boronine/colorspaces.js"
 }

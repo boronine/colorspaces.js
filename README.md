@@ -1,6 +1,6 @@
 # colorspaces.js
 
-**NOTE: If all you want is perceptually uniform colors, check out [HUSL](http://www.husl-colors.org/) instead.**
+**NOTE: If all you want is perceptually uniform colors, check out [HSLuv](http://www.hsluv.org/) instead.**
 
 A tiny JavaScript and [Node.js](http://nodejs.org) library for manipulating colors. Works as a [Stylus](http://stylus-lang.com/) plugin!
 
@@ -77,7 +77,7 @@ You can still modify its opacity with Stylus' `rgba` function:
 
 ## Supported Color Spaces
 
-All color spaces below define colors via numeric components. Sometimes the ranges for these numbers are strictly defined, sometimes they are unknown (e.g. the upper limit on chroma is undefined in CIE color spaces). This can be a problem if you want to generate colors in a perceptually uniform color space. To get around this problem I created [HUSL](http://www.husl-colors.org), a version of CIELCHuv with a bounded chroma component.
+All color spaces below define colors via numeric components. Sometimes the ranges for these numbers are strictly defined, sometimes they are unknown (e.g. the upper limit on chroma is undefined in CIE color spaces). This can be a problem if you want to generate colors in a perceptually uniform color space. To get around this problem I created [HSLuv](http://www.hsluv.org), a version of CIELCHuv with a bounded chroma component.
 
  * [`sRGB`][sRGB]: Standard RGB, the color space used on the web. All values range between 0 and 1. Be careful, rounding errors can result in values just outside this range.
  * [`CIEXYZ`][CIEXYZ]: One of the first mathematically defined color spaces. Values range between 0 and 0.95047, 1.0 and 1.08883 for X, Y and Z respectively. These three numbers together define the white point, which can be different depending on the chosen illuminant. The commonly used [illuminant D65](http://en.wikipedia.org/wiki/Illuminant_D65) was chosen for this project.
